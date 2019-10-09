@@ -244,7 +244,7 @@ def arrowI(a, b, ab):
 def arrowE(a, ab, b):
     ret = step(b, "→ E", [a,ab])
     if ab.expr.type() != Node.ARROW:
-        raise ProofException("→ E", ab, "premise doesn't match A → B", ret)
+        raise ProofException("→ E", ab.expr, "premise doesn't match A → B", ret)
     if ab.expr.lhs != a.expr:
         raise ProofException("→ E", a.expr, "left hand side doens't match", ret)
     if ab.expr.rhs != b:
