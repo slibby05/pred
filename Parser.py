@@ -113,20 +113,28 @@ def lex(text):
 def expr(tokens):
     follow = [TType.TEOF, TType.TRPAREN]
     e = None
-    if tokens[0].ttype == TType.TFA and \
-       tokens[1].ttype == TType.TVAR and \
-       tokens[2].ttype == TType.TDOT:
-        tokens.pop(0)
-        v = tokens.pop(0).val
-        tokens.pop(0)
-        e = Forall(v,expr(tokens))
-    elif tokens[0].ttype == TType.TEX and \
-       tokens[1].ttype == TType.TVAR and \
-       tokens[2].ttype == TType.TDOT:
-        tokens.pop(0)
-        v = tokens.pop(0).val
-        tokens.pop(0)
-        e = Exists(v,expr(tokens))
+    if tokens[0].ttype == TType.TFA:
+        if tokens[1].ttype == TType.TVAR:
+            if tokens[2].ttype == TType.TDOT:
+                tokens.pop(0)
+                v = tokens.pop(0).val
+                tokens.pop(0)
+                e = Forall(v,expr(tokens))
+            else:
+                raise ParseException(tokens[2].pos,[TType.TDOT],tokens[2].val)
+        else:
+            raise ParseException(tokens[1].pos,[TType.TVAR],tokens[1].val)
+    elif tokens[0].ttype == TType.TEX:
+        if tokens[1].ttype == TType.TVAR:
+            if tokens[2].ttype == TType.TDOT:
+                tokens.pop(0)
+                v = tokens.pop(0).val
+                tokens.pop(0)
+                e = Exists(v,expr(tokens))
+            else:
+                raise ParseException(tokens[2].pos,[TType.TDOT],tokens[2].val)
+        else:
+            raise ParseException(tokens[1].pos,[TType.TVAR],tokens[1].val)
     else:
         e = arrow_expr(tokens)
     if tokens[0].ttype not in follow:
@@ -200,6 +208,9 @@ def term(tokens):
         if tokens[0].ttype != TType.TRPAREN:
             raise ParseException(tokens[0].pos,[TType.TRPAREN],tokens[0].val)
         tokens.pop(0)
+    elif tokens[0].ttype == TType.TFA or \
+         tokens[0].ttype == TType.TEX:
+         e = expr(tokens)
     else:
         raise ParseException(tokens[0].pos,first,tokens[0].val)
 
